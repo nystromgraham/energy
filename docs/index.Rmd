@@ -1,65 +1,245 @@
 ---
-title: "Energy"
+title: "The Clean Energy Transition"
 author: "Graham Nystrom"
 date: "2026-02-10"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
-## Renewable Energy Dataset
-``` {r }
+### **Introduction:**
+  In 2015, leaders from across the globe gathered to set an agenda for transforming the world by 2030 through a unified commitment to sustainable development. To accomplish their agenda, the leaders set a series of Sustainable Development Goals [(SDGs)](https://unric.org/en/united-nations-sustainable-development-goals/) aimed to keep the globe on track for a sustainable transformation. While many of the goals brought about meaningful change on the global scale, there are far many more goals that have been left unaddressed and in need of concerted effort. The full list of SDGs for 2030 is as follows:\
+
+:::::: {.columns}
+::: {.column width="48%"}
+1. No Poverty
+2. Zero Hunger
+3. Good Health and Well-Being
+4. Quality Education
+5. Gender Equality
+6. Clean Water and Sanitation
+7. **Affordable and Clean Energy**
+8. Decent Work and Economic Growth
+9. **Industry, Innovation, and Infrastructure**
+:::
+
+::: {.column width="48%"}
+10. Reduced Inequalities
+11. Sustainable Cities and Communities
+12. Responsible Consumption and Production
+13. Climate Action
+14. Life Below Water
+15. Life on land
+16. Peace, Justice, and Strong Institutions
+17. Partnerships for the Goals
+:::
+::::::
+
+Of the 17 goals above, this report will use a collection of recent data sources to focus on the status of the *Affordable and Clean Energy* goal and the sustainable *Industry, Innovation, and Infrastructure* goal - goals 7 and 9 as seen above. While all of the SDGs are intended to work in tandem and influence each other towards a singe goal of a sustainable future, a rapid transition to sustainable energy production and speedy investment into the renewable energy industry is imperative for an immediate reduction in greenhouse gas emission. Focusing on the status of these two goals gives us a glimpse into how the globe has been responding to try to meet these 2030 goals.
+&nbsp;
+
+### **Data Exploration:**
+``` {r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(knitr)
 library(readr)
+library(dplyr)
 energy <- read_csv("../../data/IRENA data.csv", skip = 1)
+#View(energy)
+#head(energy)
+#energy$Technology %>% unique()
+#energy$Year %>% unique()
+#energy$`Country/area` %>% unique()
 
 ```
 
-## Gapminder Dataset
-
-```{r}
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 library(gapminder)
 library(dplyr)
-data(gapminder)
-gapminder %>% head
+#data(gapminder)
+#View(gapminder)
+#gapminder %>% head
+#gapminder$country %>% unique
 ```
 
-## Carbon Emissions
 
-```{r}
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 library(dplyr)
 library(readr)
+library(ggplot2)
 
 url <- 'https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv'
 carbon <- read_csv(url)
-carbon %>% head
+#carbon %>% head
+#carbon$country %>% unique()
+#carbon$year %>% unique()
+
 ```
 
-## Levelized cost of energy
-
-```{r}
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
 library(readr)
 library(dplyr)
 url <- 'https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv'
 econ <- read_csv(url)
-econ %>% head
+#econ %>% head
 ```
 
-```{r}
+
+For the world to adopt renewable energy alternatives to cheap fossil fuels, the cost of producing renewable energy must be comparable (or cheaper) than its fossil fuel counterpart. The following graph tracks the relative energy costs over time of 4 of the major renewable energy industries. The figure also contains dotted lines delineating the typical price range for using fossil fuel energy.  
+
+#### **Energy Cost for Major Renewable Alternatives**
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+library(plotly)
+econ_filt<-econ %>% 
+  filter(source %in% c("Solar photovoltaic", "Offshore wind", "Onshore wind",
+                       "Concentrated solar power")) %>% 
+  filter(year >= 1990)
 library(ggplot2)
-ggplot(econ,
+
+ggplotly(ggplot(econ_filt,
        aes(x=year,
            y=cost,
            color=source))+
-  geom_point()+
+  geom_point(alpha=0.25)+
+  geom_smooth(se = FALSE)+
   geom_hline(yintercept = 0.05, lty=3)+
+  geom_hline(yintercept = 0.115, lty=1)+
   geom_hline(yintercept = 0.18, lty=3)+
+  theme_bw()+
+  labs(
+       x="Year",
+       y="Cost (US Dollars per KWh")+
   annotate(geom='text',
-           x=1990, y=0.1, 
-           label='Range of fossil\n fuel costs')
+           x=2000, y=0.3, 
+           label='Range of fossil fuel\n  costs (dotted lines)'))
 ```
 
-```{r}
+The trend lines above show that the cost of renewable energy has been declining consistently in all 
+4 of the industry sectors, and even suggest that the cost of any of the four renewable alternatives might be lower than the average cost of fossil fuel energy! 
+The following table shows the cost of our four renewable energy alternatives in 2020. \
+\
+*keep in mind that the median cost for non-renewable energy is* **$0.115** *per Kilowatt-Hour*
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, results= 'asis'}
 library(knitr)
-econ %>% 
-  filter(year == 2020) %>% 
-  group_by(source) %>% 
+
+cost_tbl<-econ %>% 
+  filter(year == '2020') %>% 
+  filter(source %in% c("Concentrated solar power", "Offshore wind", 
+                       "Onshore wind", "Solar photovoltaic")) %>% 
+  group_by(source, year) %>% 
   summarize(cost = mean(cost, na.rm=TRUE)) %>% 
-  kable
+  arrange(cost) %>% 
+  kable(digits = 2)
+
+
+cost_tbl
 ```
+
+
+&nbsp;
+
+This data shows that by the end of 2020, we see renewable alternatives becoming a potentially
+more cost effective energy source than fossil fuels. This leads to the question of whether we have seen a reduction in fossil fuel consumption and an adoption of clean energy alternatives.
+
+&nbsp;
+
+The following graph shows a measure of energy production in Gigawatt-hours for three of the major renewable energy alternatives along side energy production for the total collection of non-renewable energy sources for both major countries. The data begins at year 2000 when renewable alternatives began to become competitively priced to fossil fuel energy.
+
+#### **Energy Production by Technology**
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE, fig.width=10, fig.height=7}
+
+energy_filt <- energy %>% filter(`Country/area` %in% c("United States of America (the)", "China")) %>% 
+  filter(Technology %in% c("Onshore wind energy",  "Offshore wind energy",  "Solar photovoltaic", 
+                           "Total non-renewable"))
+energy_filt$`Country/area`[energy_filt$`Country/area`== "United States of America (the)"] <-
+  "United States of America"
+  
+
+library(ggplot2)
+ggplot(energy_filt,
+       aes(x=Year,
+           y=(as.numeric(`Electricity statistics`) / 1000),
+           color=Technology))+
+  geom_point()+
+  geom_smooth(se = FALSE)+
+  facet_grid(~`Country/area`)+
+  labs(
+       y="Energy Statistic (GWh)")+
+  theme_bw()
+
+```
+
+&nbsp;
+
+The following graph shows annual carbon dioxide emissions for the globe and its two largest players, China and the US. The data starts at the year 2000 when renewable forms of energy were beginning to compete with fossil fuel prices. 
+
+#### **Yearly Carbon Dioxide Emissions** 
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+carbon_exp<-carbon %>% 
+  filter(country %in%  c("World", "United States", "China")) %>% 
+  filter(year >=2000)
+
+#View(carbon_exp)
+
+ggplot(carbon_exp,
+       aes(x=year,
+           y=(co2/1000),
+           color = country))+
+  geom_path(size=0.75)+
+  labs(
+       y="CO2 (billions of metric tons)",
+       x="Year")+
+  theme_bw()
+
+```
+
+World emission rates and the adoption rates of renewable energy alternatives do not seem to have much of a response to the trend in reduced cost of renewable energy. In fact, global emissions seem to still be trending upward at the end of 2020. China appears to be a driving force for the world trend as its emission rate increases and the US's seems stagnated. Multiple explanations might be at work to produce this trend:
+
+- High population growth within these two countries might be increasing energy consumption.
+
+- An increased immediate demand in electricity might favor the time-efficient, already developed out fossil fuel energy source, despite the cost of renewable alternatives being potentially lower.
+
+- While the cost per unit energy might be lower for renewable energy sources, the logistic and time cost for developing renewable energy infrastructure might be holding it back.
+
+&nbsp;
+
+Maybe a look at population growth between China and the US could provide some further insight into these rising emission data:
+
+#### **Population Growth for China & United States**
+```{r eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gapminder)
+#View(gapminder)
+
+#gapminder %>% group_by(year) %>% 
+ # summarise(population = sum(as.numeric(pop)))
+
+gapminder_1<-gapminder %>% 
+  filter(country %in% c("United States", "China")) %>% 
+  filter(year >= 1980) %>% 
+  mutate(pop_billion = pop/1000000000)
+
+#View(gapminder_1)
+ggplot(gapminder_1,
+       aes(x=year, y=pop_billion, fill=country))+
+  geom_col(alpha=.40)+
+  labs(y = "Population (Billions)",
+       x = "Year")+
+  theme_bw()
+
+```
+
+We see that the population growth trends between China and the US both more-or-less mirror the trends in [carbon dioxide emission](#yearly-carbon-dioxide-emissions). As China's population grows, its emission grows similarly. As the US's population stays relatively stagnant, so does its emission rate.
+
+### Takeaways:
+
+A quick exploration of the cost of renewable energy, global carbon dioxide emission, and population growth shows that the influences behind the adoption of renewable energy alternatives over fossil fuel consumption is a complex issue. We see that even if the cost of energy production from renewable sources reduces below the cost for burning fossil fuels, it does not mean that the world unilaterally makes the transition to the cheaper, renewable option. A complex array of political, economical, and logistical influences is likely driving the meager green energy adoption data seen above. As a globe, we must work unilaterally and make compromises if we want to meet the ambitious SDGs and transform into a sustainable globalized society.   
+
+#### Data Sources
+- Energy production by technology from: [2025 IRENA Report](https://www.irena.org/Publications/2025/Jul/Renewable-energy-statistics-2025) 
+- Non-renewable energy cost range from: [Alternative Press](https://alternativepress.us/the-coming-climate-and-best-energy-source-choices/lifetime-cost-per-kilowatt-hour-kwh-of-various-electricity-generation-methods/) 
+- Population data from: [Gapminder](https://www.gapminder.org/data/)
+- Carbon emission data from: [Ocean Spaces](https://nyc3.digitaloceanspaces.com/owid-public/data/co2/owid-co2-data.csv)
+- Levelized cost of energy data from [Our World in Data](https://raw.githubusercontent.com/ericmkeen/sewanee_esus/master/02_energy_sector/levelized-cost-of-energy.csv)
+
+
