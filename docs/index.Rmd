@@ -2,8 +2,9 @@
 title: "The Clean Energy Transition"
 author: "Graham Nystrom"
 date: "2026-02-10"
-output: html_document
-editor_options: 
+output:
+  html_document: default
+editor_options:
   chunk_output_type: console
 ---
 ### **Introduction:**
@@ -233,7 +234,7 @@ We see that the population growth trends between China and the US both more-or-l
 
 ### Takeaways:
 
-A quick exploration of the cost of renewable energy, global carbon dioxide emission, and population growth shows that the influences behind the adoption of renewable energy alternatives over fossil fuel consumption is a complex issue. We see that even if the cost of energy production from renewable sources reduces below the cost for burning fossil fuels, it does not mean that the world unilaterally makes the transition to the cheaper, renewable option. A complex array of political, economical, and logistical influences is likely driving the meager green energy adoption data seen above. As a globe, we must work unilaterally and make compromises if we want to meet the ambitious SDGs and transform into a sustainable globalized society.   
+A quick exploration of the cost of renewable energy, global carbon dioxide emission, and population growth shows that the influences behind the adoption of renewable energy alternatives over fossil fuel consumption are complex. We see that even if the cost of energy production from renewable sources reduces to below the cost for burning fossil fuels, it does not mean that the world makes a collective transition to the cheaper, renewable option. A complex array of political, economical, and logistical influences is likely driving the meager green energy adoption data seen above. As a globe, we must work unilaterally and make compromises if we want to meet the ambitious SDGs and transform into a sustainable globalized society.   
 
 #### Data Sources
 - Energy production by technology from: [2025 IRENA Report](https://www.irena.org/Publications/2025/Jul/Renewable-energy-statistics-2025) 
